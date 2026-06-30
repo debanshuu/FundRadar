@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useCompare } from '../context/CompareContext'
-import { getFundDetail } from '../services/api'
+import { searchFunds, getFundDetail } from '../services/api'
 import { calculateReturn } from '../utils/cagr'
 import ComparisonTable from '../components/ComparisonTable'
 import { Line } from 'react-chartjs-2'
@@ -23,8 +23,59 @@ function parseDate(dateStr) {
   return new Date(`${year}-${month}-${day}`)
 }
 
+function FundPicker({ onSelect, excludeCodes }) {
+  const [query, setQuery] = useState('')
+  const [results, setResults] = useState([])
+
+  async function handleChange(e) {
+    const value = e.target.value
+    setQuery(value)
+
+    if (value.trim().length < 2) {
+      setResults([])
+      return
+    }
+
+    try {
+      const data = await searchFunds(value)
+      const filtered = data.filter((f) => !excludeCodes.includes(String(f.schemeCode)))
+      setResults(filtered.slice(0, 6))
+    } catch {
+      setResults([])
+    }
+  }
+
+  return (
+    <div className="compare-picker">
+      <input
+        type="text"
+        value={query}
+        onChange={handleChange}
+        placeholder="Search for a fund to add"
+      />
+      {results.length > 0 && (
+        <div className="overlap-results">
+          {results.map((fund) => (
+            <button
+              key={fund.schemeCode}
+              className="overlap-result-item"
+              onClick={() => {
+                onSelect(fund)
+                setQuery('')
+                setResults([])
+              }}
+            >
+              {fund.schemeName}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function ComparePage() {
-  const { basket, removeFromCompare, clearCompare } = useCompare()
+  const { basket, addToCompare, removeFromCompare, clearCompare } = useCompare()
   const [funds, setFunds] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -89,18 +140,14 @@ function ComparePage() {
     { label: 'Category', getValue: (f) => f.meta.scheme_category, higherIsBetter: false }
   ]
 
-  if (basket.length === 0) {
-    return (
-      <div className="compare-page">
-        <h1>Compare Funds</h1>
-        <p>You haven't added any funds yet. Go to a fund's detail page and tap "Add to Compare" to get started.</p>
-      </div>
-    )
-  }
+  const excludeCodes = basket.map((f) => String(f.schemeCode))
 
   return (
     <div className="compare-page">
       <h1>Compare Funds</h1>
+      <p className="overlap-intro">
+        Search and add up to 3 funds to compare side by side.
+      </p>
 
       <div className="compare-basket">
         {basket.map((fund) => (
@@ -109,19 +156,36 @@ function ComparePage() {
             <button onClick={() => removeFromCompare(fund.schemeCode)}>&times;</button>
           </div>
         ))}
-        <button className="clear-compare" onClick={clearCompare}>Clear all</button>
+        {basket.length > 0 && (
+          <button className="clear-compare" onClick={clearCompare}>Clear all</button>
+        )}
       </div>
 
-      {loading && <p>Loading comparison...</p>}
+      {basket.length < 3 && (
+        <FundPicker
+          onSelect={(fund) => addToCompare({ schemeCode: fund.schemeCode, schemeName: fund.schemeName })}
+          excludeCodes={excludeCodes}
+        />
+      )}
+
+      {basket.length === 0 && (
+        <p className="search-status">Search for a fund above to start comparing.</p>
+      )}
+
+      {basket.length === 1 && (
+        <p className="search-status">Add at least one more fund to see a comparison.</p>
+      )}
+
+      {loading && <p className="search-status">Loading comparison...</p>}
       {error && <p className="error-text">{error}</p>}
 
-      {chartData && (
+      {chartData && basket.length >= 2 && (
         <div className="nav-chart">
           <Line data={chartData} options={{ responsive: true, plugins: { legend: { display: true, position: 'bottom' } } }} />
         </div>
       )}
 
-      {funds.length > 0 && (
+      {funds.length >= 2 && (
         <ComparisonTable rows={tableRows} funds={funds} />
       )}
     </div>

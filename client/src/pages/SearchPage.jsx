@@ -1,9 +1,13 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import SearchBar from '../components/SearchBar'
 import FundCard from '../components/FundCard'
 import { searchFunds } from '../services/api'
 
 function SearchPage() {
+  const navigate = useNavigate()
+  const searchBarRef = useRef(null)
+
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -24,38 +28,45 @@ function SearchPage() {
     }
   }
 
+  function scrollToSearch() {
+    searchBarRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    searchBarRef.current?.querySelector('input')?.focus()
+  }
+
   return (
     <div className="search-page">
 
       <div className="search-hero">
-        <div className="hero-badge">🇮🇳 Indian Mutual Funds</div>
-        <h1>Find & Compare<br />Mutual Funds</h1>
+        
+        <h1>Find & Compare<br />Indian Mutual Funds</h1>
         <p className="search-subtitle">
           Real NAV data · Side-by-side comparison · Holdings overlap checker
         </p>
-        <SearchBar onSearch={handleSearch} />
+        <div ref={searchBarRef}>
+          <SearchBar onSearch={handleSearch} />
+        </div>
       </div>
 
       {!hasSearched && (
         <div className="feature-cards">
-          <div className="feature-card">
+          <button className="feature-card" onClick={scrollToSearch}>
             <div>
               <div className="feature-title">NAV History</div>
               <div className="feature-desc">Track NAV trends from 1 week to 3 years</div>
             </div>
-          </div>
-          <div className="feature-card">
+          </button>
+          <button className="feature-card" onClick={() => navigate('/compare')}>
             <div>
               <div className="feature-title">Compare Funds</div>
               <div className="feature-desc">Side-by-side returns across any time period</div>
             </div>
-          </div>
-          <div className="feature-card">
+          </button>
+          <button className="feature-card" onClick={() => navigate('/overlap')}>
             <div>
               <div className="feature-title">Overlap Checker</div>
               <div className="feature-desc">See shared holdings between two funds</div>
             </div>
-          </div>
+          </button>
         </div>
       )}
 

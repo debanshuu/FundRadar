@@ -11,12 +11,14 @@ function App() {
     <CompareProvider>
       <BrowserRouter>
         <Navbar />
-        <Routes>
-          <Route path="/" element={<SearchPage />} />
-          <Route path="/fund/:schemeCode" element={<FundDetailPage />} />
-          <Route path="/compare" element={<ComparePage />} />
-          <Route path="/overlap" element={<OverlapPage />} />
-        </Routes>
+        <div className="page-content">
+          <Routes>
+            <Route path="/" element={<SearchPage />} />
+            <Route path="/fund/:schemeCode" element={<FundDetailPage />} />
+            <Route path="/compare" element={<ComparePage />} />
+            <Route path="/overlap" element={<OverlapPage />} />
+          </Routes>
+        </div>
       </BrowserRouter>
     </CompareProvider>
   )

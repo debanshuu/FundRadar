@@ -6,7 +6,7 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      <Link to="/" className="navbar-brand">MutualFundIQ</Link>
+      <Link to="/" className="navbar-brand">FundRadar</Link>
       <div className="navbar-links">
         <Link to="/overlap" className="navbar-link">Overlap</Link>
         <Link to="/compare" className="navbar-compare">

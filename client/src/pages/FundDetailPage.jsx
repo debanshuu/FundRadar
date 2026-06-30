@@ -1,9 +1,8 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { getFundDetail } from '../services/api'
 import NavChart from '../components/NavChart'
 import { calculateCAGR } from '../utils/cagr'
-import { useCompare } from '../context/CompareContext'
 
 function parseDate(dateStr) {
   const [day, month, year] = dateStr.split('-')
@@ -12,7 +11,6 @@ function parseDate(dateStr) {
 
 function FundDetailPage() {
   const { schemeCode } = useParams()
-  const { basket, addToCompare } = useCompare()
   const [fund, setFund] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -131,18 +129,6 @@ function FundDetailPage() {
       )}
 
       <NavChart navHistory={fund.data} fundName={fund.meta.scheme_name} />
-
-      {basket.some((f) => String(f.schemeCode) === String(schemeCode)) ? (
-        <Link to="/compare" className="add-compare-button already-added">Added &middot; View Compare</Link>
-      ) : (
-        <button
-          className="add-compare-button"
-          disabled={basket.length >= 3}
-          onClick={() => addToCompare({ schemeCode: fund.meta.scheme_code, schemeName: fund.meta.scheme_name })}
-        >
-          {basket.length >= 3 ? 'Compare basket full (max 3)' : 'Add to Compare'}
-        </button>
-      )}
 
       <div className="cagr-calculator">
         <h2>CAGR Calculator</h2>

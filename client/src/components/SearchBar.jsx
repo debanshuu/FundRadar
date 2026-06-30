@@ -18,7 +18,7 @@ function SearchBar({ onSearch }) {
       type="text"
       value={query}
       onChange={(e) => setQuery(e.target.value)}
-      placeholder="Search mutual funds by name or AMC"
+      placeholder="Search funds by name or AMC"
       className="search-input"
     />
   )
