@@ -4,7 +4,7 @@
 
 A full-stack web application for searching, comparing, and analyzing Indian mutual funds using real-time NAV data — built to help investors spot portfolio overlap before they invest.
 
-**Live Demo:** https://fund-radar.vercel.app
+**Live Demo:** [https://fund-radar.vercel.app](https://fund-radar-kappa.vercel.app/)
 
 ---
 
